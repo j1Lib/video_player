@@ -1,116 +1,347 @@
 <!DOCTYPE html>
-<html lang="zh-Hant-HK">
+<html lang="zh-hk">
 <head>
-	<meta charset="utf-8">
-	<title>港雲</title>
-	<meta name="description" content="HongKonger would like to say">
-	<meta name="author" content="j113203">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="theme-color" content="#777777">
-	<link href="favicon.ico" rel="icon" type="image/x-icon" defer async="async">
-	<meta property="og:image" content="favicon.ico" />
+
+  <meta charset="utf-8">
+  <title>Video</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <link rel="stylesheet" href="css/normalize.css">
+
 </head>
 <body>
-	<nav>
-		<div class="inline logo">
-			港人<u>云</u>
-			<i class="inline fa fa-comment"></i>
-		</div>
-		<div class="inline">
-			<form method="get" class="search">
-				<input class="borderless full-width" type="text" placeholder="討論話題 ……" name="topic" required><button class="borderless" type="submit"><i class="fa fa-commenting-o"></i></button>
-			</form>
-		</div>			
-	</nav>
-	
-	<div class="container">
-	</div>	
-	
+
+	<div id="player">
+		<canvas width="15" height="15"></canvas>
+		<canvas width="15" height="15"></canvas>
+		<div></div>
+	</div>
+
 </body>
-</html>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.0.0/normalize.min.css" rel="stylesheet" type="text/css" defer async>
-<link href="css/core.css" rel="stylesheet" type="text/css" defer async>
-<link href="https://fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css" defer async>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" defer async>
-<script src="js/jquery.min.js" type="text/javascript" defer async></script>
-<script defer async>
-(function(){
-	window.addEventListener("load",function(){	
-		window.onerror = function(message, source, lineno, colno, error) {
-			HK.container.element.html(HK.title.show("500 Internal Server Error",message));
-			return true;
-		};
-		(function() {
-			window.alert = function(msg) {
-				HK.container.element.prepend(HK.title.show("",msg));
-				$("div#title").fadeOut(3000);
+
+<style>
+body{
+	background-color: #212121;
+}
+div#player{	
+	border: 1px solid white;
+	background-color: #212121;
+	width: 15px;
+	height: 15px;
+	position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+}
+div#player>*{
+	display: block;
+}
+div#player>div{
+	background-color: red;
+	height: 15px;
+	width: 0px;
+}
+div#player>canvas:nth-of-type(2),div#player>div{
+	position: absolute;
+    bottom: 0px;
+	opacity: 0.5;
+}
+div#player>canvas:nth-of-type(2){
+	z-index:3;
+}
+</style>
+<script>
+var j1Lib_ajax=function(n,t,e){var r=new XMLHttpRequest;return r.open("GET",n),r.addEventListener("load",function(){200==r.status?t(r):e(r)}),r.addEventListener("error",function(){e(r)}),r};
+var j1Lib_video_ajax = function(url,callback,worker,orginal){
+	var url_ = function(data){
+		return (window.URL || window.webkitURL).createObjectURL(data);
+	};
+	if (orginal){
+		callback(url);
+	}else{
+		if (worker){
+			var ajax_ = new Worker("js/j1Lib_video_ajax.js");
+			ajax_.postMessage({ "url": url });
+			ajax_.onmessage = function(e){
+				callback(url_(e.data));
 			};
-		})(window.alert);
-		window.HK = {
-			TEMPpool : new Object,
-			container : {
-				element : $("div.container"),
-				html : "",
-				script : function(){},
-				callback : function(html,script){
-					this.html=html;
-					this.script=script;
-				}
-			},
-			require : function(page){
-				HK.TEMPpool= new Object;
-				HK.container.element.html(HK.title.show("模組: "+page,"載入中 ……"));
-				$.ajaxSetup({ cache: true });
-				$.getScript( "module/"+page+".js" , function(){					
-					HK.container.element.html(HK.container.html);
-					HK.container.script();
-					HK.container.script=function(){};
-				}).fail(function(){
-					HK.container.element.html(HK.title.show("模組: "+page,"載入失敗。"));
-				});
-			},
-			title : {
-				h1_ : "",
-				h2_ : "",
-				show : function(h1,h2){
-					this.h1_ = h1;
-					this.h2_ = h2;
-					return this.show_(h1,h2);
-				},
-				show_ : function(h1,h2){
-					return "<div id='title'><h3 class='title'>"+h1+"</h3><p class='title'>"+h2+"</p></div>";
-				},
-				h1 : function(h1){
-					this.h1_ = h1;
-					return this.show_(h1,this.h2_);
-				},
-				h2 : function(h2){
-					this.h2_ = h2;
-					return this.show_(this.h1_,h2);
-				}
-			},
-			Fn : {
-				Fn_ : '<div id="FnKey">',
-				Fn : function(onclick,icon,text){
-					return '<a class="button" onclick="'+onclick+'"><i class="fa fa-'+icon+' fa-1x"></i> '+text+'</a>';
-				}
-			},
-			search : function(topic){		
-				topic = escape(unescape(topic));
-				$me.topic=topic;
-				HK.require("topic");
-				return false;
-			},
-			post : function(post){
-				$me.post=post;
-				HK.require("post");
-			}
-		};
-		HK.require("shield");
+		}else{
+			var ajax_ = j1Lib_ajax(url,function(data){
+				callback(url_(data.response));		
+			},function(){			
+			});
+			ajax_.responseType = 'blob';
+			ajax_.send();		
+		}
+	}	
+};
+var j1Lib_video = function(config){	
 		
+	var canvas=config.render;
+	var control=config.control;
+	var thread=config.thread || 1;
+	var worker=config.worker || true;
+	var fps = config.fps || 60;
+	var autoplay = config.autoplay || false;
+	
+	var this_ = this;
+	var w = 0;	
+	var h = 0;
+	this.resize = function(canvas){
+		w = canvas.width;	
+		h = canvas.height;
+	};
+	this.resize(canvas);
+	canvas.addEventListener('click', function(){
+		if (playing){
+			if (playing.paused){
+				playing.play();
+			}else{
+				control.setProgress(playing_i,playing.currentTime);
+				playing.pause();
+			}
+		}		
 	});
-})();
-
-
-
+	control.setVideo(this);
+	var title = null;	
+	var video = [];
+	var video_ = function(url){
+		var video__ = document.createElement('video');	
+		video__.src = url;
+		video__.preload = "auto";
+		video__.addEventListener('play', function(){
+			if (playing=this){
+				var this__ = this;				
+				play_ = setInterval(function(){
+					canvas.drawImage(this__,0,0,w,h);					
+				},fps);
+				control.hide();
+			}			
+		});
+		video__.addEventListener('pause', function(){
+			if (playing=this){				
+				clearInterval(play_);
+				control.show();
+				canvas.fillStyle="rgba(33,33,33,0.8)";
+				canvas.fillRect(0,0,w,h);
+				canvas.fillStyle="white";
+				canvas.fillText(title,50,50);
+			}
+		});
+		video__.addEventListener('ended', function(){			
+			if (playing=this){
+				clearInterval(play_);
+				var i = video.indexOf(this);
+				play(video[i+1]);
+			}
+		});
+		video__.addEventListener('loadedmetadata', function(){
+			var i = video.indexOf(this);
+			control.setBuffered(i);
+		});
+		return video__;
+	};
+	var reset = function(){
+		canvas.clearRect(0,0,w,h);
+	};
+	var play_ = null;
+	var playing = null;
+	var playing_i = null;
+	var play = function(video__){
+		playing = video__;
+		playing_i = video.indexOf(video__);
+		video__.play();
+	};
+	var src = "";
+	var img = null;
+	this.src ="";
+	Object.defineProperty(this, "src", {
+		get: function() {
+			return src;
+		},
+		set: function(src_) {
+			src = src_;
+			j1Lib_ajax(src_+".json",function(data){
+				data = JSON.parse(data.response);
+				title = data.title;
+				img = data.index.replace("%server%",location.hostname);
+				for (var i = 0 ; i<=data.video.part ; i++){				
+					video.push(data.video.server.replace("%server%",location.hostname)+"_"+i+"."+data.video.format);
+				}
+				buffer_(function(){					
+					var canvas_ = canvas;
+					canvas = canvas.getContext("2d");					
+					setTimeout(function(){
+						if (autoplay){
+							play(video[0]);
+						}else{
+							canvas_.addEventListener("click", function(){
+								this.removeEventListener('click',arguments.callee);
+								play(video[0]);
+							});
+						}					
+					},1000);
+				});
+				this_.duration=data.length;
+				this_.part=data.video.part;
+				control.setPart(data.video.part);
+				control.setLength(data.length);
+			},function(){
+			}).send();
+		}
+	});
+	var buffer = function(video_index,callback){
+		j1Lib_video_ajax(video[video_index],function(data){			
+			video[video_index]=video_(data);
+			callback();
+		},worker,video_index==0);
+	};	
+	var pool = 0;	
+	var thread_ = function(){
+		buffer(pool++,function(){			
+			if (pool < video.length){
+				thread_();				
+			}else{
+				if (--thread==0){
+					console.log("Download Complete");
+				}
+			}
+		});
+	};
+	var buffer_ = function(callback){
+		buffer(pool++,function(){
+			callback();
+			for (var i=0;i<thread;i++){	
+				thread_();
+			}
+		});		
+	};
+	this.pause = function(){
+		playing.pause();
+	};
+	this.play = function(){
+		playing.play();
+	};
+	this.playAt = function(part,second){
+		if (typeof video[part] === "object"){
+			playing.pause();
+			play(video[part]);
+			playing.currentTime=second;
+		}
+	};
+	this.duration = "";
+	this.part = 0;
+};
+var j1Lib_video_control = function(config){
+		
+	var canvas = config.bar;
+	var duration = config.duration;
+	
+	var w = canvas.width;
+	var h = canvas.height;
+	this.resize = function(canvas){
+		w = canvas.width;
+		h = canvas.height;		
+		if (this.reset){
+			this.reset();
+		};
+	};
+	this.resize(canvas);
+	var load = "rgba(255,255,255,0.5)";
+	var unload = "rgba(33,33,33,0.5)";	
+	canvas.addEventListener('click', function(event){		
+		var size = w/(part.length+1);		
+		var block = parseInt(event.offsetX / size, 0);	
+		var	second = event.offsetX-size*block;
+		player.playAt(block,second);		
+	});
+	var canvas_ = canvas;
+	canvas = canvas.getContext("2d");
+	this.reset = function(){
+		var size = w/(part.length+1);
+		for (var i = 0 ; i<part.length;i++){
+			canvas.fillStyle = part[i] || unload;
+			var start = parseInt(i*size,0);
+			var end = parseInt((i+1)*size,0);
+			canvas.fillRect(start,0,end,h);
+		}
+	};
+	var length=0;
+	var part=[];
+	this.setBuffered = function(i){
+		part[i] = load;
+		this.reset();
+	};
+	this.setPart = function(part_){
+		for (var i = 0 ; i<part_;i++){
+			part.push(unload);
+		}
+		this.reset();
+	};
+	this.setLength = function(length_){
+		length = length_;
+	};
+	this.setProgress = function(block,second){
+		var size = w/(part.length+1);
+		var start = parseInt(block*size,0);
+		duration.style.width=start+second+"px";
+	};
+	var player=null;
+	this.setVideo = function(videoplayer){
+		player = videoplayer;
+	};
+	this.show = function(){
+		duration.style.display="block";
+		canvas_.style.display="block";
+	};
+	this.hide = function(){
+		duration.style.display="none";
+		canvas_.style.display="none";		
+	};
+	this.hide();
+};
+var j1Lib_resolution = function(){
+	var w = innerWidth-innerWidth*0.2;
+	var h = innerHeight-innerHeight*0.2;
+	h=w/1280*720;	
+	player_.style.width = w+"px";
+	player_.style.height = h+"px";	
+	player_video_.width = w;
+	player_video_.height = h;	
+	player_control_.width = w;
+	video_.resize(player_video_);
+	video_control_.resize(player_video_);
+};
+var player_ = document.getElementById("player");
+var player_video_ = player_.getElementsByTagName("canvas")[0];
+var player_control_ = player_.getElementsByTagName("canvas")[1];
+var player_control_duration = player_.getElementsByTagName("div")[0];
+var video_control_ = new j1Lib_video_control({
+												bar : player_control_,
+												duration: player_control_duration
+											});
+//var video_control_ = new j1Lib_video_control(player_control_,player_control_duration);
+var video_ = new j1Lib_video({
+								render : player_video_,
+								control : video_control_,
+								thread: 3,
+								worker: true,
+								fps: 60,
+								autoplay: true
+							});
+document.addEventListener("DOMContentLoaded", function(event) {
+	
+	onresize = function(event) {
+		j1Lib_resolution();
+	};
+	onresize();
+	
+	video_.src="01";
+	
+});
 </script>
+</html>
