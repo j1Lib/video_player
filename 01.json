@@ -3,7 +3,7 @@
   "length": "1379",
   "index": "https://%server%/img/01.jpg", 
   "video": {
-    "server": "https://%server%/video/01",
+    "server": "https://%server%/video_player/01",
     "part": "22",
     "format": "mp4"
   }
