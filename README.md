@@ -1,4 +1,4 @@
 # video_player
-multi threaded js video player
+multi threaded download js video player
 
 ![img](http://i.imgur.com/MCNVXsw.png)
