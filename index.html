@@ -16,14 +16,10 @@
 <body>
 
 	<div id="player">
-		<canvas width="798" height="504"></canvas>
-		<canvas width="798" height="15"></canvas>
+		<canvas width="15" height="15"></canvas>
+		<canvas width="15" height="5"></canvas>
+		<div></div>
 	</div>
-
-	Thread:
-	<input type="number" value="2"/>
-	<button> Start </button>
-
 
 </body>
 
@@ -31,14 +27,31 @@
 body{
 	background-color: #212121;
 }
-div#player{
-	background-color: #212121;
-	margin: 50px;
-	width: 798px;
-	height: 504px;
-}
-div#player>canvas{
+div#player{	
 	border: 1px solid white;
+	background-color: #212121;
+	width: 15px;
+	height: 15px;
+	position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+}
+div#player>*{
+	display: block;
+}
+div#player>div{
+	background-color: red;
+	height: 5px;
+	width: 0px;
+}
+div#player>canvas:nth-of-type(2),div#player>div{
+	position: absolute;
+    bottom: 0px;
+	opacity: 0.5;
+}
+div#player>canvas:nth-of-type(2){
+	z-index:3;
 }
 </style>
 <script>
@@ -66,36 +79,57 @@ var j1Lib_video_ajax = function(url,callback,worker,orginal){
 		}
 	}	
 };
-var j1Lib_video = function(canvas,control,thread,worker){	
+var j1Lib_video = function(config){	
+		
+	var canvas=config.render;
+	var control=config.control;
+	var thread=config.thread || 1;
+	var worker=config.worker || true;
+	var fps = config.fps || 60;
+	
+	
 	var this_ = this;
-	var w = canvas.width;
-	var h = canvas.height;
-	canvas.addEventListener('click', function(){		
-		if (playing.paused){
-			playing.play();
-		}else{
-			playing.pause();
-		}
+	var w = 0;	
+	var h = 0;
+	this.resize = function(canvas){
+		w = canvas.width;	
+		h = canvas.height;
+	};
+	this.resize(canvas);
+	canvas.addEventListener('click', function(){
+		if (playing){
+			if (playing.paused){
+				playing.play();
+			}else{
+				control.setProgress(playing_i,playing.currentTime);
+				playing.pause();
+			}
+		}		
 	});
-	canvas = canvas.getContext("2d");
 	control.setVideo(this);
 	var title = null;	
 	var video = [];
 	var video_ = function(url){
 		var video__ = document.createElement('video');	
 		video__.src = url;
+		video__.preload = "auto";
 		video__.addEventListener('play', function(){
 			if (playing=this){
 				var this__ = this;				
 				play_ = setInterval(function(){
-					canvas.drawImage(this__,0,0,w,h);
-					control.setProgress(playing_i,playing.currentTime);
-				},60);
+					canvas.drawImage(this__,0,0,w,h);					
+				},fps);
+				control.hide();
 			}			
 		});
 		video__.addEventListener('pause', function(){
-			if (playing=this){
+			if (playing=this){				
 				clearInterval(play_);
+				control.show();
+				canvas.fillStyle="rgba(33,33,33,0.8)";
+				canvas.fillRect(0,0,w,h);
+				canvas.fillStyle="white";
+				canvas.fillText(title,50,50);
 			}
 		});
 		video__.addEventListener('ended', function(){			
@@ -123,6 +157,7 @@ var j1Lib_video = function(canvas,control,thread,worker){
 		video__.play();
 	};
 	var src = "";
+	var img = null;
 	this.src ="";
 	Object.defineProperty(this, "src", {
 		get: function() {
@@ -133,11 +168,19 @@ var j1Lib_video = function(canvas,control,thread,worker){
 			j1Lib_ajax(src_+".json",function(data){
 				data = JSON.parse(data.response);
 				title = data.title;
-				for (var i = 0 ; i<data.video.part ; i++){				
+				img = data.index.replace("%server%",location.hostname);
+				for (var i = 0 ; i<=data.video.part ; i++){				
 					video.push(data.video.server.replace("%server%",location.hostname)+"_"+i+"."+data.video.format);
 				}
-				buffer_(function(){
-					play(video[0]);
+				buffer_(function(){					
+					var canvas_ = canvas;
+					canvas = canvas.getContext("2d");				
+					setTimeout(function(){
+						canvas_.addEventListener("click", function(){
+							this.removeEventListener('click',arguments.callee);
+							play(video[0]);
+						});
+					},1000);
 				});
 				this_.duration=data.length;
 				this_.part=data.video.part;
@@ -158,6 +201,10 @@ var j1Lib_video = function(canvas,control,thread,worker){
 		buffer(pool++,function(){			
 			if (pool < video.length){
 				thread_();				
+			}else{
+				if (--thread==0){
+					console.log("Download Complete");
+				}
 			}
 		});
 	};
@@ -185,15 +232,30 @@ var j1Lib_video = function(canvas,control,thread,worker){
 	this.duration = "";
 	this.part = 0;
 };
-var j1Lib_video_control = function(canvas){	
+var j1Lib_video_control = function(config){
+		
+	var canvas = config.bar;
+	var duration = config.duration;
+	
 	var w = canvas.width;
 	var h = canvas.height;
+	this.resize = function(canvas){
+		w = canvas.width;
+		h = canvas.height;		
+		if (this.reset){
+			this.reset();
+		};
+	};
+	this.resize(canvas);
 	var load = "rgba(255,255,255,0.5)";
 	var unload = "rgba(33,33,33,0.5)";	
 	canvas.addEventListener('click', function(){		
-		var length_ = length/w*event.layerX;
-		player.playAt(parseInt(length_ / 60, 10),parseInt(length_%60,0));
+		var size = w/(part.length+1);		
+		var block = parseInt(event.offsetX / size, 0);	
+		var	second = event.offsetX-size*block;
+		player.playAt(block,second);		
 	});
+	var canvas_ = canvas;
 	canvas = canvas.getContext("2d");
 	this.reset = function(){
 		var size = w/(part.length+1);
@@ -219,28 +281,62 @@ var j1Lib_video_control = function(canvas){
 	this.setLength = function(length_){
 		length = length_;
 	};
-	var duration = 0;
 	this.setProgress = function(block,second){
-		//canvas.fillStyle = "red";
-		duration = w/length*block*60+second;
-		
-		//canvas.fillRect(start,0,start+2,h);
+		var size = w/(part.length+1);
+		var start = parseInt(block*size,0);
+		duration.style.width=start+second+"px";
 	};
 	var player=null;
-	this.setVideo = function(videoplayer){		
+	this.setVideo = function(videoplayer){
 		player = videoplayer;
 	};
+	this.show = function(){
+		duration.style.display="block";
+		canvas_.style.display="block";
+	};
+	this.hide = function(){
+		duration.style.display="none";
+		canvas_.style.display="none";		
+	};
+	this.hide();
 };
-
-document.getElementsByTagName("button")[0].addEventListener('click', function(){
-	video_player_control = new j1Lib_video_control(document.getElementById("player").getElementsByTagName("canvas")[1]);
-	var canvas = document.getElementById("player").getElementsByTagName("canvas")[0];
-	var thread = document.getElementsByTagName("input")[0].value || 2;
-	video_player = new j1Lib_video(canvas,video_player_control,thread,true);
-	video_player.src="01";
-});
-
+var j1Lib_resolution = function(){
+	var w = innerWidth-innerWidth*0.2;
+	var h = innerHeight-innerHeight*0.2;
+	h=w/1280*720;	
+	player_.style.width = w+"px";
+	player_.style.height = h+"px";	
+	player_video_.width = w;
+	player_video_.height = h;	
+	player_control_.width = w;
+	video_.resize(player_video_);
+	video_control_.resize(player_video_);
+};
+var player_ = document.getElementById("player");
+var player_video_ = player_.getElementsByTagName("canvas")[0];
+var player_control_ = player_.getElementsByTagName("canvas")[1];
+var player_control_duration = player_.getElementsByTagName("div")[0];
+var video_control_ = new j1Lib_video_control({
+												bar : player_control_,
+												duration: player_control_duration
+											});
+//var video_control_ = new j1Lib_video_control(player_control_,player_control_duration);
+var video_ = new j1Lib_video({
+								render : player_video_,video_control_,
+								control : video_control_,
+								thread: 3,
+								worker: true,
+								fps: 60
+							});
 document.addEventListener("DOMContentLoaded", function(event) {
+	
+	onresize = function(event) {
+		j1Lib_resolution();
+	};
+	onresize();
+	
+	player_video_.removeEventListener("click", arguments.callee);
+	video_.src="01";
 	
 });
 </script>
