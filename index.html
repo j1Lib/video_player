@@ -86,7 +86,7 @@ var j1Lib_video = function(config){
 	var thread=config.thread || 1;
 	var worker=config.worker || true;
 	var fps = config.fps || 60;
-	
+	var autoplay = config.autoplay || false;
 	
 	var this_ = this;
 	var w = 0;	
@@ -174,12 +174,16 @@ var j1Lib_video = function(config){
 				}
 				buffer_(function(){					
 					var canvas_ = canvas;
-					canvas = canvas.getContext("2d");				
+					canvas = canvas.getContext("2d");					
 					setTimeout(function(){
-						canvas_.addEventListener("click", function(){
-							this.removeEventListener('click',arguments.callee);
+						if (autoplay){
 							play(video[0]);
-						});
+						}else{
+							canvas_.addEventListener("click", function(){
+								this.removeEventListener('click',arguments.callee);
+								play(video[0]);
+							});
+						}					
 					},1000);
 				});
 				this_.duration=data.length;
@@ -326,7 +330,8 @@ var video_ = new j1Lib_video({
 								control : video_control_,
 								thread: 3,
 								worker: true,
-								fps: 60
+								fps: 60,
+								autoplay: true
 							});
 document.addEventListener("DOMContentLoaded", function(event) {
 	
