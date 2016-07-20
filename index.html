@@ -253,7 +253,7 @@ var j1Lib_video_control = function(config){
 	this.resize(canvas);
 	var load = "rgba(255,255,255,0.5)";
 	var unload = "rgba(33,33,33,0.5)";	
-	canvas.addEventListener('click', function(){		
+	canvas.addEventListener('click', function(event){		
 		var size = w/(part.length+1);		
 		var block = parseInt(event.offsetX / size, 0);	
 		var	second = event.offsetX-size*block;
@@ -340,7 +340,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	};
 	onresize();
 	
-	player_video_.removeEventListener("click", arguments.callee);
 	video_.src="01";
 	
 });
