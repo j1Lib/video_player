@@ -109,6 +109,12 @@ var j1Lib_video = function(config){
 	control.setVideo(this);
 	var title = null;	
 	var video = [];
+	var video_error = function(msg){
+		canvas.fillStyle="rgba(33,33,33,0.8)";
+		canvas.fillRect(0,0,w,h);
+		canvas.fillStyle="white";
+		canvas.fillText(msg,50,50);
+	};
 	var video_ = function(url){
 		var video__ = document.createElement('video');	
 		video__.src = url;
@@ -126,10 +132,7 @@ var j1Lib_video = function(config){
 			if (playing=this){				
 				clearInterval(play_);
 				control.show();
-				canvas.fillStyle="rgba(33,33,33,0.8)";
-				canvas.fillRect(0,0,w,h);
-				canvas.fillStyle="white";
-				canvas.fillText(title,50,50);
+				video_error(title);				
 			}
 		});
 		video__.addEventListener('ended', function(){			
@@ -137,6 +140,11 @@ var j1Lib_video = function(config){
 				clearInterval(play_);
 				var i = video.indexOf(this);
 				play(video[i+1]);
+			}
+		});
+		video__.addEventListener('error', function(){			
+			if (playing=this){
+				video_error("錯誤: 播放器緩存衝突");
 			}
 		});
 		video__.addEventListener('loadedmetadata', function(){
@@ -191,6 +199,8 @@ var j1Lib_video = function(config){
 				control.setPart(data.video.part);
 				control.setLength(data.length);
 			},function(){
+				canvas = canvas.getContext("2d");
+				video_error("錯誤: 影片不存在");
 			}).send();
 		}
 	});
