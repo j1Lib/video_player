@@ -183,13 +183,17 @@ var j1Lib_video = function(config){
 				buffer_(function(){					
 					var canvas_ = canvas;
 					canvas = canvas.getContext("2d");					
+					video_error("播放器初始化中……");
 					setTimeout(function(){
 						if (autoplay){
-							play(video[0]);
+							video[0].autoplay = true;
+							video[0].load();
+							//play(video[0]);
 						}else{
 							canvas_.addEventListener("click", function(){
 								this.removeEventListener('click',arguments.callee);
-								play(video[0]);
+								video[0].autoplay = true;
+								video[0].load();
 							});
 						}					
 					},1000);
