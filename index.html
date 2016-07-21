@@ -185,11 +185,11 @@ var j1Lib_video = function(config){
 					canvas = canvas.getContext("2d");					
 					video_error("播放器初始化中……");
 					playing=video[0];
+					playing_i = 0;
 					setTimeout(function(){
 						if (autoplay){
 							video[0].autoplay = true;
 							video[0].load();
-							//play(video[0]);
 						}else{
 							canvas_.addEventListener("click", function(){
 								this.removeEventListener('click',arguments.callee);
