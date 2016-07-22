@@ -1,9 +1,8 @@
 {
   "title": "只有我不存在的城市",
   "length": "1379",
-  "index": "https://%server%/img/01.jpg", 
   "video": {
-    "server": "https://%server%/video_player/01",
+    "server": "http://%server%/video/01",
     "part": "22",
     "format": "mp4"
   }
