@@ -1,10 +1,23 @@
-var j1Lib_ajax=function(n,t,e){var r=new XMLHttpRequest;return r.open("GET",n),r.addEventListener("load",function(){200==r.status?t(r):e(r)}),r.addEventListener("error",function(){e(r)}),r};
-onmessage = function(e) {
-	var ajax = j1Lib_ajax(e.data.url,function(data){
-		postMessage(data.response);		
-	},function(){			
-	});
-	ajax.responseType = 'blob';
-	ajax.send();
+var j1Lib_video_ajax = function(url,callback,worker,orginal){
+	var url_ = function(data){
+		return (window.URL || window.webkitURL).createObjectURL(data);
+	};
+	if (orginal){
+		callback(url);
+	}else{
+		if (worker){
+			var ajax_ = new Worker("js/j1Lib_video_ajax_worker.js");
+			ajax_.postMessage({ "url": url });
+			ajax_.onmessage = function(e){
+				callback(url_(e.data));
+			};
+		}else{
+			var ajax_ = j1Lib_ajax(url,function(data){
+				callback(url_(data.response));		
+			},function(){			
+			});
+			ajax_.responseType = 'blob';
+			ajax_.send();		
+		}
+	}	
 };
-
