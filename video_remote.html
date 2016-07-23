@@ -95,6 +95,7 @@ var video_ = new j1Lib_video({
 							fps: 60,
 							autoplay: false,
 							acao: false,
+							preload: false
 						});											
 											
 document.addEventListener("DOMContentLoaded", function(event) {
@@ -103,7 +104,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
 		j1Lib_resolution();
 	};
 	onresize();
-	video_.src="json/02";
+	video_.src="json/03";
+	
 	
 	player_.getElementsByTagName("button")[0].addEventListener("click", function(event) {
 		location.href="video_local.html";		

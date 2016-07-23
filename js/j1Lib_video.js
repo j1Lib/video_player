@@ -22,6 +22,10 @@ var j1Lib_video = function(config){
 	if (acao==undefined){
 		acao=true;
 	}
+	var preload = config.preload;
+	if (preload==undefined){
+		preload=true;
+	}
 	
 	var this_ = this;
 	var w = 0;	
@@ -105,7 +109,6 @@ var j1Lib_video = function(config){
 		video__.currentTime=0;
 		video__.muted=false;
 		video__.play();
-		console.log(video__.paused);
 	};
 	var src = "";
 	var img = null;
@@ -145,6 +148,7 @@ var j1Lib_video = function(config){
 			}).send();
 		}
 	});
+	var jamed = [];
 	var buffer = function(video_index,callback){			
 		j1Lib_video_ajax(video[video_index],function(data){
 			if (video[video_index]!=undefined){
@@ -153,17 +157,31 @@ var j1Lib_video = function(config){
 					video_error("錯誤: 播放器緩存衝突");
 				});
 			}			
-			if (!acao && video_index!=0){
+			if (!acao && video_index!=0 && preload){
 				video[video_index].muted=true;
 				video[video_index].play();
 				video[video_index].addEventListener("progress", function(event){
 					if( this.duration ) {
-						var percent = (this.buffered.end(0)/this.duration) * 100;
-						if( percent >= 100 ) {
+						var buffered = this.buffered.end(0) || 0;
+						var percent = (buffered/this.duration) * 100;
+						clearTimeout(jamed[video_index]);
+						if( percent >= 100 ) {							
+							this.removeEventListener("progress",arguments.callee);
 							this.pause();
 							this.currentTime = 0;
-							this.removeEventListener("progress",arguments.callee);
 							callback();							
+						}else if(this.currentTime<buffered){							
+							this.currentTime=buffered;
+							console.log(video_index+"_"+this.currentTime+"_"+buffered);							
+						}else{
+							var this_ = this;
+							console.log(video_index+"_jamed");							
+							jamed[video_index]=setTimeout(function(){
+								this_.load();
+								if (this_.paused){									
+									this_.play();
+								}
+							}, 10000);
 						}
 					}
 				},false);				
