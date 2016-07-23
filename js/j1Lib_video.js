@@ -54,10 +54,7 @@ var j1Lib_video = function(config){
 		canvas.fillStyle="white";
 		canvas.fillText(msg,50,50);
 	};
-	var video_ = function(url){
-		var video__ = document.createElement('video');	
-		video__.src = url;
-		video__.preload = "auto";
+	var video_Event = function(video__){
 		video__.addEventListener('play', function(){
 			if (playing==this){
 				var this__ = this;				
@@ -65,7 +62,7 @@ var j1Lib_video = function(config){
 					canvas.drawImage(this__,0,0,w,h);					
 				},fps);
 				control.hide();
-			}			
+			}		
 		});
 		video__.addEventListener('pause', function(){
 			if (playing==this){	
@@ -81,20 +78,11 @@ var j1Lib_video = function(config){
 				play(video[i+1]);
 			}
 		});
-		video__.addEventListener('loadedmetadata', function(){
-			var i = video.indexOf(this);
-			if (i==0){
-				setTimeout(function(){
-					if (autoplay){
-						video[0].autoplay = true;
-					}else{
-						video_error("按一下播放 "+title);
-					}					
-				},1000);
-			}
-			control.setBuffered(i);
-			this.removeEventListener("loadedmetadata",arguments.callee);			
-		});
+	};
+	var video_ = function(url){
+		var video__ = document.createElement('video');	
+		video__.src = url;
+		video__.preload = "auto";	
 		return video__;
 	};
 	var reset = function(){
@@ -148,49 +136,57 @@ var j1Lib_video = function(config){
 			}).send();
 		}
 	});
-	var jamed = [];
-	var buffer = function(video_index,callback){			
+	var buffer = function(video_index,callback){
 		j1Lib_video_ajax(video[video_index],function(data){
+			if (acao||video_index==0||!preload){
+				control.setBuffered(video_index);
+			}
 			if (video[video_index]!=undefined){
-				video[video_index]=video_(data);
+				video[video_index]=video_(data,false);
+				if (video_index==0){
+					video[video_index].addEventListener('loadedmetadata', function(){
+						this.removeEventListener("loadedmetadata",arguments.callee);
+						setTimeout(function(){
+							if (autoplay){
+								video[0].play();
+							}else{
+								video_error("按一下播放 "+title);
+							}					
+						},1000);
+					});
+				}
 				video[video_index].addEventListener('error', function(){			
 					video_error("錯誤: 播放器緩存衝突");
-				});
+				},true);
 			}			
 			if (!acao && video_index!=0 && preload){
-				video[video_index].muted=true;
 				video[video_index].play();
+				video[video_index].muted=true;
 				video[video_index].addEventListener("progress", function(event){
-					if( this.duration ) {
-						var buffered = this.buffered.end(0) || 0;
-						var percent = (buffered/this.duration) * 100;
-						clearTimeout(jamed[video_index]);
-						if( percent >= 100 ) {							
-							this.removeEventListener("progress",arguments.callee);
-							this.pause();
-							this.currentTime = 0;
-							callback();							
-						}else if(this.currentTime<buffered){							
-							this.currentTime=buffered;							
+					if (this.buffered.length){
+						var percent = (this.buffered.end(0)/this.duration) * 100;
+						if( percent >= 100){	
+							this.removeEventListener("progress",arguments.callee);						
 						}else{
-							var this_ = this;							
-							jamed[video_index]=setTimeout(function(){
-								this_.load();
-								if (this_.paused){									
-									this_.play();
-								}
-							}, 10000);
+							this.currentTime=this.buffered.end(0);							
 						}
-					}
-				},false);				
+					}				
+				});
+				video[video_index].addEventListener("ended",function(event){
+					this.removeEventListener("ended",arguments.callee);
+					callback();
+					video_Event(video[video_index]);
+					control.setBuffered(video_index);
+				});
 			}else{
 				callback();
+				video_Event(video[video_index]);
 			}			
 		},worker,!acao || video_index==0);
-	};	
+	};
 	var pool = 0;	
 	var thread_ = function(){
-		buffer(pool++,function(){			
+		buffer(pool++,function(){
 			if (pool < video.length){
 				thread_();				
 			}else{
