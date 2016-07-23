@@ -171,11 +171,9 @@ var j1Lib_video = function(config){
 							this.currentTime = 0;
 							callback();							
 						}else if(this.currentTime<buffered){							
-							this.currentTime=buffered;
-							console.log(video_index+"_"+this.currentTime+"_"+buffered);							
+							this.currentTime=buffered;							
 						}else{
-							var this_ = this;
-							console.log(video_index+"_jamed");							
+							var this_ = this;							
 							jamed[video_index]=setTimeout(function(){
 								this_.load();
 								if (this_.paused){									
