@@ -71,7 +71,7 @@ var j1Lib_video = function(config){
 				video_error(title);				
 			}
 		});
-		video__.addEventListener('ended', function(){			
+		video__.addEventListener('ended', function(){
 			if (playing==this){
 				clearInterval(play_);
 				var i = video.indexOf(this);
@@ -138,9 +138,6 @@ var j1Lib_video = function(config){
 	});
 	var buffer = function(video_index,callback){
 		j1Lib_video_ajax(video[video_index],function(data){
-			if (acao||video_index==0||!preload){
-				control.setBuffered(video_index);
-			}
 			if (video[video_index]!=undefined){
 				video[video_index]=video_(data,false);
 				if (video_index==0){
@@ -181,6 +178,7 @@ var j1Lib_video = function(config){
 			}else{
 				callback();
 				video_Event(video[video_index]);
+				control.setBuffered(video_index);
 			}			
 		},worker,!acao || video_index==0);
 	};
@@ -191,7 +189,7 @@ var j1Lib_video = function(config){
 				thread_();				
 			}else{
 				if (--thread==0){
-					console.log("Download Complete");
+					control.setBuffered(video.length);
 				}
 			}
 		});

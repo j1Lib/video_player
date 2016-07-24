@@ -3,7 +3,7 @@
 <head>
 
   <meta charset="utf-8">
-  <title>Video</title>
+  <title>//j1Lib_Video</title>
   <meta name="description" content="">
   <meta name="author" content="">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge"/> 
@@ -15,73 +15,71 @@
 </head>
 <body>
 
-	<div id="player">
-		<p>Video from github server with access-control-allow-origin <button>play</button></p>		
-		<p>Video from public drop zone without access-control-allow-origin <button>play</button></p>
-	</div>	
+<h4><a href="index.html">//j1Lib_Video</a></h4>
+	
+<pre>&lt;j1Lib_video width="10" height="10" thread="3" worker crossorigin="nobypass" controls fps="60" &gt;<br />
+	&lt;source src="json/00.json"&gt;&lt;/source&gt;<br />
+	&lt;source src="json/01.json"&gt;&lt;/source&gt;<br />
+	&lt;source src="json/02.json"&gt;&lt;/source&gt;<br />
+	&lt;source src="json/03.json"&gt;&lt;/source&gt;<br />
+&lt;/j1Lib_video&gt;
+</pre>
+
+<h4>//Property</h4>
+
+width<br>
+height<br>
+thread<br>
+worker<br>
+crossorigin="bypass"<br>
+controls<br>
+fps<br>
+autoplay<br>
+
+<h4>//Methods</h4>
+
+player.play();<br>
+
+player.pause();<br>
+
+player.buffered();<br>
+
+<h4>//Events</h4>
+
+play
+
+pause
+
+buffered
+
+</pre>
+
+	<h4><a href="local.html">Example : Video from local server</a></h4>
+	
+	<h4><a href="remote.html">Example : Video from remote server (Bypass Access Cross-Origin Request)</a></h4>
+	
 </body>
 
 <style>
 body{
+	padding: 50px;	
+	padding-bottom: 0px;
 	background-color: #212121;
-}
-div#player>p{
 	color: white;
 }
-div#player>p>button{
-	color: #212121;
+pre{
+	font-size: 0.5em;
 }
-div#player{	
+button{
+	color: black;
+}
+j1Lib_video{
 	border: 1px solid white;
-	background-color: #212121;
-	width: 15px;
-	height: 15px;
-	position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translateX(-50%) translateY(-50%);
 }
-div#player>*{
-	display: block;
+a:link,a:visited,a:hover,a:active{
+	color: white;
 }
-div#player>div{
-	background-color: red;
-	height: 15px;
-	width: 0px;
-}
-div#player>canvas:nth-of-type(2),div#player>div{
-	position: absolute;
-    bottom: 0px;
-	opacity: 0.5;
-}
-div#player>canvas:nth-of-type(2){
-	z-index:3;
-}
-</style>
-<script>
-var j1Lib_resolution = function(){
-	var w = innerWidth-innerWidth*0.2;
-	var h = innerHeight-innerHeight*0.2;
-	h=w/1280*720;	
-	player_.style.width = w+"px";
-	player_.style.height = h+"px";	
-};
-var player_ = document.getElementById("player");
-											
-document.addEventListener("DOMContentLoaded", function(event) {
-	
-	onresize = function(event) {
-		j1Lib_resolution();
-	};
-	onresize();
-	
-	player_.getElementsByTagName("button")[0].addEventListener("click", function(event) {
-		location.href="video_local.html";		
-	});
-	
-	player_.getElementsByTagName("button")[1].addEventListener("click", function(event) {
-		location.href="video_remote.html";
-	});
-	
-});
-</script>
+</style></html>
+
+
+
