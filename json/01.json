@@ -2,7 +2,7 @@
   "title": "只有我不存在的城市",
   "length" : "1379",
   "video": {
-    "server": "http://192.168.137.181/video/video/01_",
+    "server": "https://j1lib.github.io/video_player/video/01_",
     "part": "22",
     "format": ".mp4"
   }
